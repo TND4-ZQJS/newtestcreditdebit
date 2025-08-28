@@ -16,7 +16,26 @@
   .section h2{margin:0 0 10px 0;font-size:1.05rem}
   label{display:block;margin:8px 0;font-size:0.95rem}
   input[type=text],input[type=email],input[type=number],input[type=tel],select,textarea{ width:100%;padding:10px;border-radius:10px;border:1px solid #ddd;margin-top:6px;font-size:1rem;background:#fff}
-  textarea{resize: none;overflow-y:hidden;height:2.4em;word-wrap:break-word;white-space:pre-wrap}
+  textarea {
+  display: block;
+  width: 100%;
+  padding: 10px;
+  border-radius: 10px;
+  border: 1px solid #ddd;
+  margin-top: 6px;
+  font-size: 1rem;
+  background: #fff;
+
+  /* behavior */
+  resize: none;          /* prevent manual resize */
+  overflow-y: hidden;    /* hide scrollbar */
+  line-height: 1.4;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  overflow-x: hidden;
+  height: auto;          /* will be managed by JS */
+  min-height: 1.4em;     /* single line by default */
+}
   .row{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin:8px 0}
   .muted{color:var(--muted);font-size:0.85rem}
   button{background:var(--accent);color:#fff;border:0;padding:10px 14px;border-radius:10px;cursor:pointer}
@@ -1158,9 +1177,14 @@ function resetAll(){
 }
 
   document.querySelectorAll("textarea").forEach(el => {
+  // adjust height when page loads
+  el.style.height = "auto";
+  el.style.height = el.scrollHeight + "px";
+
+  // adjust on typing
   el.addEventListener("input", () => {
-    el.style.height = "auto";                 // reset
-    el.style.height = el.scrollHeight + "px"; // expand
+    el.style.height = "auto";
+    el.style.height = el.scrollHeight + "px";
   });
 });
 
