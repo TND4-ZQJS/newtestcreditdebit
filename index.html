@@ -1157,6 +1157,13 @@ function resetAll(){
   showSaveStatus();
 }
 
+  document.querySelectorAll("textarea").forEach(el => {
+  el.addEventListener("input", () => {
+    el.style.height = "auto";                 // reset
+    el.style.height = el.scrollHeight + "px"; // expand
+  });
+});
+
 /* ---------- Wire buttons ---------- */
 $("generate").addEventListener("click", fillPDF);
 $("resetAll").addEventListener("click", resetAll);
