@@ -17,7 +17,6 @@
   label{display:block;margin:8px 0;font-size:0.95rem}
   input[type=text],input[type=email],input[type=number],input[type=tel],select,textarea{ width:100%;padding:10px;border-radius:10px;border:1px solid #ddd;margin-top:6px;font-size:1rem;background:#fff}
   textarea{resize: none; overflow-y: hidden; min-height: 2.4em; line-height: 1.4}
-  #card-name{width:100%;padding:10px;border-radius:10px;border:1px solid #ddd;margin-top:6px;font-size:1rem;background:#fff;white-space:nowrap;overflow-x:auto}
   .row{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin:8px 0}
   .muted{color:var(--muted);font-size:0.85rem}
   button{background:var(--accent);color:#fff;border:0;padding:10px 14px;border-radius:10px;cursor:pointer}
@@ -139,7 +138,7 @@
     <h2>Section B - Card Details</h2>
 
     <label>Cardholder's Name (as in I/C)
-      <input name="card-name" id="CardName" placeholder="AS IN I/C">
+      <input type="text" id="CardName" placeholder="AS IN I/C">
     </label>
 
     <div class="row">
