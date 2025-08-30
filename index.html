@@ -1032,6 +1032,8 @@ async function fillPDF(){
     safeSetText(form, "Sign_Date", $("Sign_Date_Select").value || "");
     safeSetText(form, "Sign_Month", $("Sign_Month_Select").value || "");
     safeSetText(form, "Sign_Year", $("Sign_Year_Select").value || "");
+    safeSetText(form, "Sign_PayorName", $("Sign_PayorName").value.toUpperCase() || "");
+    safeSetText(form, "Sign_PayorNIRC", $("Sign_PayorNIRC").value || "");
 
     // THIRD PARTY SECTION
     safeCheck(form, "ThirdPP_Yes", $("ThirdPP_Yes").checked);
