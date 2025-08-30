@@ -702,11 +702,11 @@ document.getElementById("Sign_PayorName").addEventListener("input", e => {
 
 /* Populate DOB dropdowns for Third Party */
 (function populateDOB(){
-  const daySel = $("Text28");
+  const daySel = $("ThirdPP_DOB_DD");
   daySel.innerHTML = '<option value="">-- Day --</option>';
   for(let d=1; d<=31; d++){ const val = String(d).padStart(2,'0'); daySel.innerHTML += `<option value="${val}">${val}</option>`; }
   autoBindSave(daySel);
-  const monthSel = $("Text29");
+  const monthSel = $("ThirdPP_DOB_MM");
   monthSel.innerHTML = '<option value="">-- Month --</option>';
   const months = ["January","February","March","April","May","June","July","August","September","October","November","December"];
   months.forEach((m,i)=>{ const val = String(i+1).padStart(2,'0'); monthSel.innerHTML += `<option value="${val}">${val} - ${m}</option>`; });
