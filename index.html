@@ -826,8 +826,8 @@ function resizeSigCanvas(){
   scaleX = sigCanvas.width / (sigCanvas.getBoundingClientRect().width || cssWidth);
   scaleY = sigCanvas.height / (sigCanvas.getBoundingClientRect().height || cssHeight);
   // White background (prevents transparent PNG on PDFs)
-  sigCtx.fillStyle = "#fff";
-  sigCtx.fillRect(0,0,sigCanvas.width/scaleX, sigCanvas.height/scaleY);
+  //sigCtx.fillStyle = "#fff";
+  //sigCtx.fillRect(0,0,sigCanvas.width/scaleX, sigCanvas.height/scaleY);
 }
 
 function openSig(target){
@@ -855,7 +855,7 @@ function openSig(target){
 $("sigClear").addEventListener("click", ()=>{
   sigCtx.clearRect(0,0,sigCanvas.width, sigCanvas.height);
   // Repaint white bg in CSS pixels
-  sigCtx.fillStyle="#fff"; sigCtx.fillRect(0,0,sigCanvas.width/scaleX, sigCanvas.height/scaleY);
+  //sigCtx.fillStyle="#fff"; sigCtx.fillRect(0,0,sigCanvas.width/scaleX, sigCanvas.height/scaleY);
 });
 $("sigCancel").addEventListener("click", closeSigModal);
 function closeSigModal(){
