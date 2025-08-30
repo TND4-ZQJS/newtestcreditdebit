@@ -232,9 +232,9 @@
 
     <label>Date of Birth</label>
     <div class="row">
-      <select id="Text28"></select>
-      <select id="Text29"></select>
-      <input id="Text30" type="number" min="1900" max="2100" placeholder="YYYY">
+      <select id="ThirdPP_DOB_DD"></select>
+      <select id="ThirdPP_DOB_MM"></select>
+      <input id="ThirdPP_DOB_YYYY" type="number" min="1900" max="2100" placeholder="YYYY">
     </div>
 
     <label>IC No.
@@ -1046,9 +1046,9 @@ async function fillPDF(){
         "ThirdPP_NatureBusiness","ThirdPP_Income",
         "ThirdPP_SourceFund_Others_Write","ThirdPP_SourceWealth_Others_Write"
       ].forEach(id=> safeSetText(form, id, $(id).value || ""));
-      safeSetText(form, "Text28", $("Text28").value || "");
-      safeSetText(form, "Text29", $("Text29").value || "");
-      safeSetText(form, "Text30", $("Text30").value || "");
+      safeSetText(form, "ThirdPP_DOB_DD", $("ThirdPP_DOB_DD").value || "");
+      safeSetText(form, "ThirdPP_DOB_MM", $("ThirdPP_DOB_MM").value || "");
+      safeSetText(form, "ThirdPP_DOB_YYYY", $("ThirdPP_DOB_YYYY").value || "");
       [
         "ThirdPP_SourceFund_Self","ThirdPP_SourceFund_Parent","ThirdPP_SourceFund_Spouse","ThirdPP_SourceFund_Others",
         "ThirdPP_SourceWealth_EmployBus","ThirdPP_SourceWealth_Invest","ThirdPP_SourceWealth_Inherit","ThirdPP_SourceWealth_Savings",
