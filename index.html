@@ -689,6 +689,17 @@ cardDigits.forEach((el, idx)=>{
   autoBindSave(sel);
 })();
 
+// --- Auto uppercase for signatory Policy Owner and Payor name  ---
+document.getElementById("Sign_OwnerName").addEventListener("input", e => {
+  e.target.value = e.target.value.toUpperCase();
+  saveElValue(e.target);
+});
+document.getElementById("Sign_PayorName").addEventListener("input", e => {
+  e.target.value = e.target.value.toUpperCase();
+  saveElValue(e.target);
+});
+
+
 /* Populate DOB dropdowns for Third Party */
 (function populateDOB(){
   const daySel = $("Text28");
@@ -1015,7 +1026,7 @@ async function fillPDF(){
     safeCheck(form, "Master_Tick", $("Master_Tick").checked);
 
     // SIGN META
-    safeSetText(form, "Sign_OwnerName", $("Sign_OwnerName").value || "");
+    safeSetText(form, "Sign_OwnerName", $("Sign_OwnerName").value.toUpperCase() || "");
     safeSetText(form, "Sign_OwnerNIRC", $("Sign_OwnerNIRC").value || "");
     safeSetText(form, "Sign_State", $("Sign_State_Select").value || "");
     safeSetText(form, "Sign_Date", $("Sign_Date_Select").value || "");
