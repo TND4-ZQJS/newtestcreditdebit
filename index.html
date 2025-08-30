@@ -15,20 +15,9 @@
   .section{background:#fbfbfd;border:1px solid #eee;padding:14px;border-radius:10px;margin:12px 0}
   .section h2{margin:0 0 10px 0;font-size:1.05rem}
   label{display:block;margin:8px 0;font-size:0.95rem}
-  input[type=text],input[type=email],input[type=number],input[type=tel],select,textarea{ width:100%;padding:10px;border-radius:10px;border:1px solid #ddd;margin-top:6px;font-size:1rem;background:#fff}
-  textarea {display: block;width: 100%;padding: 10px;border-radius: 10px;border: 1px solid #ddd;margin-top: 6px;font-size: 1rem;background: #fff;}
-  textarea::placeholder {font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;color: #aaa;}
-
-  /* behavior */
-  resize: none;          /* prevent manual resize */
-  overflow-y: hidden;    /* hide scrollbar */
-  line-height: 1.4;
-  white-space: pre-wrap;
-  word-wrap: break-word;
-  overflow-x: hidden;
-  height: auto;          /* will be managed by JS */
-  min-height: 1.4em;     /* single line by default */
-}
+  input[type=text],input[type=email],input[type=number],input[type=tel],select,textarea{
+    width:100%;padding:10px;border-radius:10px;border:1px solid #ddd;margin-top:6px;font-size:1rem;background:#fff
+  }
   .row{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin:8px 0}
   .muted{color:var(--muted);font-size:0.85rem}
   button{background:var(--accent);color:#fff;border:0;padding:10px 14px;border-radius:10px;cursor:pointer}
@@ -37,20 +26,39 @@
   .actions{display:flex;gap:12px;align-items:center}
 
   /* Header tidy alignment */
-  .header-agree{ display:flex;align-items:center;gap:10px; padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:#fff;}
+  .header-agree{
+    display:flex;align-items:center;gap:10px;
+    padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:#fff;
+  }
   .header-agree input[type=checkbox]{margin:0}
   .header-agree .title{font-weight:600}
-  .header-grid{ margin-top:10px; display:grid;gap:10px; grid-template-columns: 1fr 1fr; align-items:start; }
-  .header-item{ background:#fff;border:1px solid var(--line);border-radius:10px;padding:10px 12px;display:flex;align-items:center;gap:8px }
+  .header-grid{
+    margin-top:10px;
+    display:grid;gap:10px;
+    grid-template-columns: 1fr 1fr;
+    align-items:start;
+  }
+  .header-item{
+    background:#fff;border:1px solid var(--line);border-radius:10px;padding:10px 12px;display:flex;align-items:center;gap:8px
+  }
   .header-item .stack{display:flex;flex-direction:column;gap:6px;width:100%}
   .header-item .inline{display:flex;align-items:center;gap:8px}
   .header-item input[type=checkbox]{margin:0}
   .amount-wrap{background:#fff;border:1px solid var(--line);border-radius:10px;padding:10px 12px}
   .amount-wrap label{margin:0}
 
-  .onetime-charge-options { grid-column: 2 / -1; opacity: 0.5; pointer-events: none;}
-  .onetime-charge-options.active { opacity: 1; pointer-events: auto;}
-  .onetime-charge-options fieldset{ border: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 12px;}
+  .onetime-charge-options {
+    grid-column: 2 / -1;
+    opacity: 0.5;
+    pointer-events: none;
+  }
+  .onetime-charge-options.active {
+    opacity: 1;
+    pointer-events: auto;
+  }
+  .onetime-charge-options fieldset{
+    border: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 12px;
+  }
   .onetime-charge-options input[type="number"]{ width: auto; margin-top: 0; }
   .onetime-charge-options input[type="number"][disabled] { background-color: #f6f7f9; cursor: not-allowed; }
   .onetime-charge-options .row{ align-items: center; }
@@ -71,13 +79,19 @@
   .policy .remove-btn:hover{border-color:#d0d0d7}
 
   /* Signature preview tiles */
-  .sig-preview{width:100%; height:150px; border:1px dashed #bbb; border-radius:10px; display:flex; align-items:center; justify-content:center; background:#fff; cursor:pointer; position:relative;}
+  .sig-preview{
+    width:100%; height:150px; border:1px dashed #bbb; border-radius:10px;
+    display:flex; align-items:center; justify-content:center; background:#fff; cursor:pointer; position:relative;
+  }
   .sig-preview img{ max-width:100%; max-height:100%; object-fit:contain; }
   .sig-preview span{ color:#999; }
 
   /* Signature Modal */
   .sig-modal{ display:none; position:fixed; inset:0; background:rgba(0,0,0,.45); z-index:1000; }
-  .sig-modal .box{ width:min(560px, 92vw); background:#fff; margin:6vh auto; padding:14px; border-radius:12px; box-shadow:0 18px 50px rgba(0,0,0,.25) }
+  .sig-modal .box{
+    width:min(560px, 92vw); background:#fff; margin:6vh auto; padding:14px; border-radius:12px;
+    box-shadow:0 18px 50px rgba(0,0,0,.25)
+  }
   .sig-modal h3{ margin:0 0 8px 0; }
   /* NOTE: canvas is responsive via CSS; internal pixels are set in JS for crispness */
   #sigCanvas{ width:100%; height:220px; background:#fff; border:1px solid #ddd; border-radius:10px; touch-action:none }
@@ -150,7 +164,7 @@
     <h2>Section B - Card Details</h2>
 
     <label>Cardholder's Name (as in I/C)
-      <input type="text" id="CardName" placeholder="AS IN I/C">
+      <input id="CardName" type="text" placeholder="AS IN I/C">
     </label>
 
     <div class="row">
@@ -295,7 +309,7 @@
   <h2>Section E — Signature</h2>
 
   <label>Policy Owner's Name
-    <textarea id="Sign_OwnerName" placeholder="Enter Name"></textarea>
+    <input id="Sign_OwnerName" type="text">
   </label>
   <div class="row" style="margin-top: -10px; margin-bottom: 12px;">
     <label class="inline">
@@ -339,7 +353,7 @@
   <div id="payorSignatureSection" style="display:none; margin-top: 20px;">
     <h3>Fill and Sign only if Payor is not Policy Owner</h3>
     <label>Payor's Name
-      <textarea id="Sign_PayorName" placeholder="Enter Name"></textarea>
+      <input id="Sign_PayorName" type="text">
     </label>
     <div class="row" style="margin-top: -10px; margin-bottom: 12px;">
       <label class="inline">
@@ -532,7 +546,7 @@ function createPolicyEntry(index){
       <input type="text" id="PolicyNo${index}" placeholder="Enter policy number">
     </label>
     <label>Name of Insured
-      <textarea id="Insured${index}" placeholder="Enter name of Insured"></textarea>
+      <input type="text" id="Insured${index}" placeholder="Enter name of Insured">
     </label>
     <label>Relationship of Cardholder with Owner
       <select id="Relationship${index}">
@@ -1168,18 +1182,6 @@ function resetAll(){
   updatePayorSectionUI();
   showSaveStatus();
 }
-
-  document.querySelectorAll("textarea").forEach(el => {
-  // adjust height when page loads
-  el.style.height = "auto";
-  el.style.height = el.scrollHeight + "px";
-
-  // adjust on typing
-  el.addEventListener("input", () => {
-    el.style.height = "auto";
-    el.style.height = el.scrollHeight + "px";
-  });
-});
 
 /* ---------- Wire buttons ---------- */
 $("generate").addEventListener("click", fillPDF);
