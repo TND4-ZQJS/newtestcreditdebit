@@ -935,7 +935,7 @@ $("clearPreviewPayor").addEventListener("click", ()=>{
   localStorage.removeItem("cc_sig_payor");
   $("preview_payor").innerHTML = `<span>Tap to Sign (Payor)</span>`;
 
-  if (sigTarget === "witness") signaturePad.clear();
+  if (sigTarget === "payor") signaturePad.clear();
 });
 
 
@@ -1183,7 +1183,7 @@ function resetAll(){
        "Sign_PayorName", "Sign_PayorNIRC", "SameAsThirdPartyPayorName", "SameAsThirdPartyPayorNIRC",
        "PDPA",
        // signatures
-       "sig_owner", "sig_payor"
+       "cc_sig_owner", "cc_sig_payor"
       ].includes(k)
     ){
       localStorage.removeItem(k);
