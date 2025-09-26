@@ -826,7 +826,7 @@ function resizeCanvas() {
 
   // If modal is open and sigTarget exists, prefer the stored PNG for that role.
   // Otherwise fall back to the current canvas content.
-  const storageKey = sigTarget ? "sig_" + sigTarget : null;
+  const storageKey = sigTarget ? "cc_sig_" + sigTarget : null;
   const savedFromStorage = storageKey ? localStorage.getItem(storageKey) : null;
   const sourceData = savedFromStorage || sigCanvas.toDataURL();
 
@@ -868,7 +868,7 @@ function openSig(target){
   sigTarget = target;
   $("sigModalTitle").textContent = 
     target === 'owner' ? "Sign: Policy Owner" :
-    target === 'witness' ? "Sign: Witness" : "Sign: Trustee";
+    target === 'payor' ? "Sign: Payor" ;
 
   sigModal.style.display = "block";
   sigModal.setAttribute("aria-hidden", "false");
@@ -884,7 +884,7 @@ $("sigClear").addEventListener("click", ()=>{
 
   if (sigTarget) {
     // remove saved signature
-    localStorage.removeItem("sig_" + sigTarget);
+    localStorage.removeItem("cc_sig_" + sigTarget);
 
     // reset preview back to "Tap to Sign (…) "
     $("preview_" + sigTarget).innerHTML = `<span>Tap to Sign (${
@@ -906,14 +906,14 @@ $("sigDone").addEventListener("click", () => {
   // Always take snapshot from the canvas (even if unchanged)
   const dataURL = sigCanvas.toDataURL("image/png");
 
-  if (signaturePad.isEmpty() && !localStorage.getItem("sig_" + sigTarget)) {
+  if (signaturePad.isEmpty() && !localStorage.getItem("cc_sig_" + sigTarget)) {
     // If no strokes and nothing saved before → treat as empty
     const label = sigTarget.charAt(0).toUpperCase() + sigTarget.slice(1);
     $("preview_" + sigTarget).innerHTML = `<span>Tap to Sign (${label})</span>`;
-    localStorage.removeItem("sig_" + sigTarget);
+    localStorage.removeItem("cc_sig_" + sigTarget);
   } else {
     // Save whatever is currently visible on the canvas
-    localStorage.setItem("sig_" + sigTarget, dataURL);
+    localStorage.setItem("cc_sig_" + sigTarget, dataURL);
     $("preview_" + sigTarget).innerHTML = `<img alt="Signature ${sigTarget}" src="${dataURL}">`;
   }
 
@@ -924,30 +924,24 @@ $("sigDone").addEventListener("click", () => {
 
 /* Clear preview buttons + restore previews on load */
 $("clearPreviewOwner").addEventListener("click", ()=>{
-  localStorage.removeItem("sig_owner");
+  localStorage.removeItem("cc_sig_owner");
   $("preview_owner").innerHTML = `<span>Tap to Sign (Owner)</span>`;
 
   // also clear from canvas if modal currently showing owner
   if (sigTarget === "owner") signaturePad.clear();
 });
 
-$("clearPreviewWitness").addEventListener("click", ()=>{
-  localStorage.removeItem("sig_witness");
-  $("preview_witness").innerHTML = `<span>Tap to Sign (Witness)</span>`;
+$("clearPreviewPayor").addEventListener("click", ()=>{
+  localStorage.removeItem("cc_sig_payor");
+  $("preview_payor").innerHTML = `<span>Tap to Sign (Payor)</span>`;
 
   if (sigTarget === "witness") signaturePad.clear();
 });
 
-$("clearPreviewTrustee").addEventListener("click", ()=>{
-  localStorage.removeItem("sig_trustee");
-  $("preview_trustee").innerHTML = `<span>Tap to Sign (Trustee)</span>`;
-
-  if (sigTarget === "trustee") signaturePad.clear();
-});
 
 window.addEventListener("DOMContentLoaded", ()=>{
-  ["owner","witness","trustee"].forEach(role=>{
-    const saved = localStorage.getItem("sig_"+role);
+  ["owner","payor"].forEach(role=>{
+    const saved = localStorage.getItem("cc_sig_"+role);
     if(saved){
       $("preview_"+role).innerHTML = `<img alt="Signature ${role}" src="${saved}">`;
     }
@@ -1088,7 +1082,7 @@ async function fillPDF(){
     const page = pages[pageIndex];
 
 // Owner signature
-const sigOwner = localStorage.getItem("sig_owner");
+const sigOwner = localStorage.getItem("cc_sig_owner");
 if (sigOwner) {
   try {
     const imgOwner = await pdfDoc.embedPng(sigOwner);
@@ -1121,7 +1115,7 @@ if (sigOwner) {
 }
 
 // Payor signature
-const sigPayor = localStorage.getItem("sig_payor");
+const sigPayor = localStorage.getItem("cc_sig_payor");
 if (sigPayor) {
   try {
     const imgPayor = await pdfDoc.embedPng(sigPayor);
