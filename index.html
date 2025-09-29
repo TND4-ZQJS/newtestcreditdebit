@@ -798,44 +798,38 @@ const signaturePad = new SignaturePad(sigCanvas, {
 function resizeCanvas() {
   const ratio = Math.max(window.devicePixelRatio || 1, 1);
 
-  // If modal is open and sigTarget exists, prefer the stored PNG for that role.
-  // Otherwise fall back to the current canvas content.
-  const storageKey = sigTarget ? "cc_sig_" + sigTarget : null;
-  const savedFromStorage = storageKey ? localStorage.getItem(storageKey) : null;
-  const sourceData = savedFromStorage || sigCanvas.toDataURL();
+  // 1. Get current signature image data (if any) before resizing
+  let signatureData = null;
+  // If the pad isn't empty, get its current content (in case the user is actively drawing)
+  if (signaturePad.toData().length > 0) {
+    signatureData = signaturePad.toDataURL("image/png");
+  } else if (sigTarget) {
+     // Check local storage for the specific target if pad is empty
+     signatureData = localStorage.getItem("cc_sig_" + sigTarget);
+  }
 
-  // Set canvas size in device pixels (prevent subpixel rounding issues)
+  // 2. Set canvas size in device pixels
   sigCanvas.width = Math.floor(sigCanvas.offsetWidth * ratio);
   sigCanvas.height = Math.floor(sigCanvas.offsetHeight * ratio);
 
-  // Reset transform and set scale so drawing coordinates are in CSS pixels
+  // 3. Reset transform and set scale so drawing coordinates are in CSS pixels
   sigCtx.setTransform(ratio, 0, 0, ratio, 0, 0);
-
-  // CSS size (in drawing units now) for layout math
-  const cssW = sigCanvas.offsetWidth;
-  const cssH = sigCanvas.offsetHeight;
-
-  // If we have an image source (PNG), draw it proportionally and center it
-  if (sourceData && typeof sourceData === "string" && sourceData.indexOf("data:image") === 0) {
-    const img = new Image();
-    img.onload = () => {
-      // clear using CSS coordinate space
-      sigCtx.clearRect(0, 0, cssW, cssH);
-
-      // Scale image proportionally to fit inside canvas area (CSS pixels)
-      const scale = Math.min(cssW / img.width, cssH / img.height);
-      const x = (cssW - img.width * scale) / 2;
-      const y = (cssH - img.height * scale) / 2;
-
-      // draw using CSS units (ctx is already scaled by devicePixelRatio)
-      sigCtx.drawImage(img, x, y, img.width * scale, img.height * scale);
-    };
-    img.src = sourceData;
+  
+  // 4. Restore the signature data if available
+  if (signatureData && signatureData.startsWith("data:image")) {
+    try {
+      // Use fromDataURL to load the image into the pad, preserving strokes
+      signaturePad.fromDataURL(signatureData); 
+    } catch (e) {
+      console.error("Error reloading signature:", e);
+      signaturePad.clear();
+    }
   } else {
-    // No image to draw — clear the pad so it's ready for a new signature
+    // If no signature data, ensure the pad is clear for a new signature
     signaturePad.clear();
   }
 }
+
 window.addEventListener("resize", resizeCanvas);
 
 function openSig(target){
