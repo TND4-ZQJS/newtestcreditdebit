@@ -387,6 +387,32 @@
     <button id="resetAll" class="secondary">Reset All</button>
   </section>
 
+  <div class="hidden-inputs">
+  <h3>Owner Signature</h3>
+  <label>
+    X: <input type="number" id="sigX_owner" value="50" />
+  </label>
+  <label>
+    Y: <input type="number" id="sigY_owner" value="490" />
+  </label>
+  <label>
+    Scale (%): <input type="number" id="sigScale_owner" value="45" />
+  </label>
+</div>
+
+<div class="hidden-inputs">
+  <h3>Payor Signature</h3>
+  <label>
+    X: <input type="number" id="sigX_payor" value="370" />
+  </label>
+  <label>
+    Y: <input type="number" id="sigY_payor" value="490" />
+  </label>
+  <label>
+    Scale (%): <input type="number" id="sigScale_payor" value="40" />
+  </label>
+</div>
+
 </main>
 
 <!-- Signature Modal -->
@@ -405,7 +431,6 @@
 
 <div id="saveStatus">Saved</div>
 
-<script src="https://cdn.jsdelivr.net/npm/signature_pad@4.0.0/dist/signature_pad.umd.min.js"></script>
 <script src="https://unpkg.com/pdf-lib/dist/pdf-lib.min.js"></script>
 <script>
 /* ---------- CONFIG ---------- */
@@ -775,144 +800,131 @@ thirdPPNIRC.addEventListener("input", () => {
 });
 updatePayorSectionUI();
 
-/* ---------- SIGNATURE MODAL LOGIC ---------- */
+/* ---------- SIGNATURE MODAL LOGIC (Owner + Payor) with HiDPI scaling ---------- */
 let sigTarget = null;
 const sigModal = $("sigModal");
 const sigCanvas = $("sigCanvas");
 const sigCtx = sigCanvas.getContext("2d");
+let drawing = false;
+let scaleX = 1, scaleY = 1;
 
-const signaturePad = new SignaturePad(sigCanvas, {
-  minWidth: 0.7,              // Thin lines when moving fast
-  maxWidth: 2.5,              // Thicker when moving slowly
-  velocityFilterWeight: 0.6,  // More responsive to speed, but still smooth
-  minDistance: 3,             // Capture detail without too many points
-  throttle: 16,               // ~60 FPS, smooth without lag
-  penColor: "black",          // Signature color
-  backgroundColor: "rgba(0,0,0,0)" // Transparent background
-  //minWidth: 1,
-  //maxWidth: 3,
-  //penColor: "black",
-  //backgroundColor: "rgba(0,0,0,0)"
-});
-
-function resizeCanvas() {
-  const ratio = Math.max(window.devicePixelRatio || 1, 1);
-
-  // 1. Get current signature image data (if any) before resizing
-  let signatureData = null;
-  // If the pad isn't empty, get its current content (in case the user is actively drawing)
-  if (signaturePad.toData().length > 0) {
-    signatureData = signaturePad.toDataURL("image/png");
-  } else if (sigTarget) {
-     // Check local storage for the specific target if pad is empty
-     signatureData = localStorage.getItem("cc_sig_" + sigTarget);
-  }
-
-  // 2. Set canvas size in device pixels
-  sigCanvas.width = Math.floor(sigCanvas.offsetWidth * ratio);
-  sigCanvas.height = Math.floor(sigCanvas.offsetHeight * ratio);
-
-  // 3. Reset transform and set scale so drawing coordinates are in CSS pixels
-  sigCtx.setTransform(ratio, 0, 0, ratio, 0, 0);
-  
-  // 4. Restore the signature data if available
-  if (signatureData && signatureData.startsWith("data:image")) {
-    try {
-      // Use fromDataURL to load the image into the pad, preserving strokes
-      signaturePad.fromDataURL(signatureData); 
-    } catch (e) {
-      console.error("Error reloading signature:", e);
-      signaturePad.clear();
-    }
-  } else {
-    // If no signature data, ensure the pad is clear for a new signature
-    signaturePad.clear();
-  }
+/* Resize canvas to look crisp on any screen size & DPR */
+function resizeSigCanvas(){
+  const dpr = window.devicePixelRatio || 1;
+  const cssWidth = sigCanvas.clientWidth || sigCanvas.parentElement.clientWidth || 560;
+  const cssHeight = sigCanvas.clientHeight || 220;
+  sigCanvas.width = Math.max(1, Math.floor(cssWidth * dpr));
+  sigCanvas.height = Math.max(1, Math.floor(cssHeight * dpr));
+  sigCtx.setTransform(1,0,0,1,0,0); // reset
+  sigCtx.scale(dpr, dpr);
+  sigCtx.lineWidth = 2;
+  sigCtx.lineCap = "round";
+  sigCtx.strokeStyle = "#000";
+  scaleX = sigCanvas.width / (sigCanvas.getBoundingClientRect().width || cssWidth);
+  scaleY = sigCanvas.height / (sigCanvas.getBoundingClientRect().height || cssHeight);
+  // White background (prevents transparent PNG on PDFs)
+  //sigCtx.fillStyle = "#fff";
+  //sigCtx.fillRect(0,0,sigCanvas.width/scaleX, sigCanvas.height/scaleY);
 }
 
-window.addEventListener("resize", resizeCanvas);
-
 function openSig(target){
-  sigTarget = target;
-  $("sigModalTitle").textContent = 
-    target === 'owner' ? "Sign: Policy Owner" :
-    target === 'payor' ? "Sign: Payor" ;
+  sigTarget = target; // 'owner' | 'payor'
+  $("sigModalTitle").textContent = target === 'owner' ? "Sign: Policy Owner" : "Sign: Payor";
 
   sigModal.style.display = "block";
   sigModal.setAttribute("aria-hidden", "false");
 
-  // Wait for layout to settle then resize & restore (resizeCanvas will restore the saved PNG if present)
+  // Next frame: ensure layout settled then resize canvas
   requestAnimationFrame(()=>{
-    resizeCanvas();
+    resizeSigCanvas();
+    // If there is an existing signature, draw it to current canvas size
+    const existing = localStorage.getItem("sig_"+target);
+    if (existing){
+      const img = new Image();
+      img.onload = ()=>{
+        // cover the canvas area with existing image
+        sigCtx.drawImage(img, 0, 0, sigCanvas.width/scaleX, sigCanvas.height/scaleY);
+      };
+      img.src = existing;
+    }
   });
 }
-
 $("sigClear").addEventListener("click", ()=>{
-  signaturePad.clear();
-
-  if (sigTarget) {
-    // remove saved signature
-    localStorage.removeItem("cc_sig_" + sigTarget);
-
-    // reset preview back to "Tap to Sign (…) "
-    $("preview_" + sigTarget).innerHTML = `<span>Tap to Sign (${
-      sigTarget.charAt(0).toUpperCase() + sigTarget.slice(1)
-    })</span>`;
-  }
+  sigCtx.clearRect(0,0,sigCanvas.width, sigCanvas.height);
+  // Repaint white bg in CSS pixels
+  //sigCtx.fillStyle="#fff"; sigCtx.fillRect(0,0,sigCanvas.width/scaleX, sigCanvas.height/scaleY);
 });
-  
 $("sigCancel").addEventListener("click", closeSigModal);
 function closeSigModal(){
   sigModal.style.display = "none";
   sigModal.setAttribute("aria-hidden", "true");
   sigTarget = null;
 }
-  
-$("sigDone").addEventListener("click", () => {
-  if (!sigTarget) return;
-
-  // Always take snapshot from the canvas (even if unchanged)
+$("sigDone").addEventListener("click", ()=>{
+  if(!sigTarget) return;
   const dataURL = sigCanvas.toDataURL("image/png");
-
-  if (signaturePad.isEmpty() && !localStorage.getItem("cc_sig_" + sigTarget)) {
-    // If no strokes and nothing saved before → treat as empty
-    const label = sigTarget.charAt(0).toUpperCase() + sigTarget.slice(1);
-    $("preview_" + sigTarget).innerHTML = `<span>Tap to Sign (${label})</span>`;
-    localStorage.removeItem("cc_sig_" + sigTarget);
-  } else {
-    // Save whatever is currently visible on the canvas
-    localStorage.setItem("cc_sig_" + sigTarget, dataURL);
-    $("preview_" + sigTarget).innerHTML = `<img alt="Signature ${sigTarget}" src="${dataURL}">`;
-  }
-
+  localStorage.setItem("sig_"+sigTarget, dataURL);
+  const preview = $("preview_"+sigTarget);
+  preview.innerHTML = `<img alt="Signature ${sigTarget}" src="${dataURL}">`;
   closeSigModal();
 });
 
-
+/* Drawing (mouse + touch) with coordinate conversion */
+function getPos(e){
+  const rect = sigCanvas.getBoundingClientRect();
+  if(e.touches && e.touches[0]){
+    return { x: (e.touches[0].clientX - rect.left), y: (e.touches[0].clientY - rect.top) };
+  }
+  return { x: (e.clientX - rect.left), y: (e.clientY - rect.top) };
+}
+function startDraw(e){
+  drawing = true;
+  sigCtx.beginPath();
+  const {x,y}=getPos(e);
+  sigCtx.moveTo(x, y);
+  e.preventDefault?.();
+}
+function endDraw(){ drawing = false; sigCtx.beginPath(); }
+function moveDraw(e){
+  if(!drawing) return;
+  const {x,y} = getPos(e);
+  sigCtx.lineTo(x, y);
+  sigCtx.stroke();
+  sigCtx.beginPath();
+  sigCtx.moveTo(x, y);
+  e.preventDefault?.();
+}
+sigCanvas.addEventListener("mousedown", startDraw);
+sigCanvas.addEventListener("mousemove", moveDraw);
+window.addEventListener("mouseup", endDraw);
+sigCanvas.addEventListener("touchstart", startDraw, {passive:false});
+sigCanvas.addEventListener("touchmove", moveDraw, {passive:false});
+sigCanvas.addEventListener("touchend", endDraw);
+window.addEventListener("resize", ()=> {
+  // Only resize when modal is open to avoid reflow glitches
+  if(sigModal.getAttribute("aria-hidden")==="false"){ 
+    const img = new Image();
+    img.onload = ()=>{
+      resizeSigCanvas();
+      sigCtx.drawImage(img, 0, 0, sigCanvas.width/scaleX, sigCanvas.height/scaleY);
+    };
+    img.src = sigCanvas.toDataURL("image/png");
+  }
+});
 
 /* Clear preview buttons + restore previews on load */
 $("clearPreviewOwner").addEventListener("click", ()=>{
-  localStorage.removeItem("cc_sig_owner");
+  localStorage.removeItem("sig_owner");
   $("preview_owner").innerHTML = `<span>Tap to Sign (Owner)</span>`;
-
-  // also clear from canvas if modal currently showing owner
-  if (sigTarget === "owner") signaturePad.clear();
 });
-
 $("clearPreviewPayor").addEventListener("click", ()=>{
-  localStorage.removeItem("cc_sig_payor");
+  localStorage.removeItem("sig_payor");
   $("preview_payor").innerHTML = `<span>Tap to Sign (Payor)</span>`;
-
-  if (sigTarget === "payor") signaturePad.clear();
 });
-
-
 window.addEventListener("DOMContentLoaded", ()=>{
   ["owner","payor"].forEach(role=>{
-    const saved = localStorage.getItem("cc_sig_"+role);
-    if(saved){
-      $("preview_"+role).innerHTML = `<img alt="Signature ${role}" src="${saved}">`;
-    }
+    const saved = localStorage.getItem("sig_"+role);
+    if(saved){ $("preview_"+role).innerHTML = `<img alt="Signature ${role}" src="${saved}">`; }
   });
 });
 
@@ -1050,7 +1062,7 @@ async function fillPDF(){
     const page = pages[pageIndex];
 
 // Owner signature
-const sigOwner = localStorage.getItem("cc_sig_owner");
+const sigOwner = localStorage.getItem("sig_owner");
 if (sigOwner) {
   try {
     const imgOwner = await pdfDoc.embedPng(sigOwner);
@@ -1083,7 +1095,7 @@ if (sigOwner) {
 }
 
 // Payor signature
-const sigPayor = localStorage.getItem("cc_sig_payor");
+const sigPayor = localStorage.getItem("sig_payor");
 if (sigPayor) {
   try {
     const imgPayor = await pdfDoc.embedPng(sigPayor);
@@ -1151,7 +1163,7 @@ function resetAll(){
        "Sign_PayorName", "Sign_PayorNIRC", "SameAsThirdPartyPayorName", "SameAsThirdPartyPayorNIRC",
        "PDPA",
        // signatures
-       "cc_sig_owner", "cc_sig_payor"
+       "sig_owner", "sig_payor"
       ].includes(k)
     ){
       localStorage.removeItem(k);
